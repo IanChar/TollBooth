@@ -4,7 +4,7 @@ import gc
 
 """
 Properties:
-    - lane_sizes: nested list telling the sizes of the lanes.
+    - lane_sizes: list of sizes.
     - target_lanes: The lanes that the cars should head towards.
     - lanes: The lanes represented as a nested list where -1 is empty.
     - future_lanes: What the lanes will be once we have commmited.
@@ -14,7 +14,7 @@ class Road(object):
 
     def __init__(self, lane_sizes, target_lanes):
         self.lane_sizes = lane_sizes
-        # Chack if target_lanes valid, and set it if it is.
+        # Check if target_lanes valid, and set it if it is.
         for target in target_lanes:
             if target > len(lane_sizes):
                 raise ValueError('Target outside of available lanes.')
@@ -29,9 +29,8 @@ class Road(object):
     def get_cell(self, lane, dist):
         return self.lanes[lane][dist]
 
-    """ Get a cell in the future lanes. """
-    def get_future_cell(self, lane, dist):
-        return self.future_lanes[lane][dist]
+    def get_lane_size(self, lane):
+        return self.lane_sizes[lane]
 
     """ Change one of the values in future lane.
 
@@ -59,8 +58,8 @@ class Road(object):
         return exited
 
     def _create_blank_lanes(self):
-        return [[-1 for _ in size] for size in self.lane_sizes]
+        return [[-1 for _ in range(size)] for size in self.lane_sizes]
 
 if __name__ == '__main__':
-    road = Road([3][4][3], [1])
+    road = Road([20, 30, 20], [1])
     print road.lanes
