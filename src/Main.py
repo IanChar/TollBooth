@@ -1,6 +1,7 @@
 """ Main file to run the simulation. """
 
-import RoadManager
+from RoadManager import RoadManager
 
 if __name__ == '__main__':
-    pass
+    rd = RoadManager([3, 4, 3], [1], 1, 1)
+    rd.tick(True)
