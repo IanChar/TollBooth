@@ -57,9 +57,19 @@ class Road(object):
         self.exiting = 0
         return exited
 
+    def print_road(self):
+        for lane in self.lanes:
+            print '\t'.join([str(speed) if speed >= 0 else '-'
+                             for speed in lane])
+
     def _create_blank_lanes(self):
         return [[-1 for _ in range(size)] for size in self.lane_sizes]
 
 if __name__ == '__main__':
-    road = Road([20, 30, 20], [1])
-    print road.lanes
+    road = Road([4, 5, 3], [1])
+    road.update_cell(0, 0, 0)
+    road.update_cell(1, 1, 1)
+    road.update_cell(1, 3, 2)
+    road.update_cell(2, 2, 2)
+    road.commit_updates()
+    road.print_road()
