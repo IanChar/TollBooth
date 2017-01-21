@@ -1,10 +1,14 @@
 """ Class to manage all elements of the simulation. """
 import time
 import sys
+from random import random
 
 from Car import Car
 from Road import Road
+from SmartCar import SmartCar
 from TollBooth import TollBooth
+
+SMART_CAR_PROB = 0.25
 
 class RoadManager(object):
     def __init__(self, lane_sizes, target_lanes, rate_in, rate_out):
@@ -48,8 +52,11 @@ class RoadManager(object):
             if booth.tick(self.road):
                 to_add.append(lane_num)
         for lane_num in to_add:
-            # TODO: Alter this if we want different cars.
-            self.actors.append(Car(lane_num, self.road))
+            prob = random()
+            if prob < SMART_CAR_PROB:
+                self.actors.append(SmartCar(lane_num, self.road))
+            else:
+                self.actors.append(Car(lane_num, self.road))
         throughput = self.road.commit_updates()
 
         self.totalTime.append(self.total)
