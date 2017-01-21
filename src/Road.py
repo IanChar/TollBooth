@@ -60,7 +60,7 @@ class Road(object):
 
     def print_road(self):
         for lane in self.lanes:
-            print '\t'.join([str(speed) if speed >= 0 else '-'
+            print ' '.join([str(speed) if speed >= 0 else '-'
                              for speed in lane])
 
         print "***********"

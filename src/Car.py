@@ -14,7 +14,7 @@ class Car(object):
         """ calls update_cell """
 
         currentLane = self._get_lane(self.lane, road)
-        print currentLane
+        #print currentLane
         leftLane = -1
         rightLane = -1
 
@@ -25,13 +25,21 @@ class Car(object):
 
         distanceToNextCar, lastCar = self._next_car(currentLane)
         newSpeed = self._get_new_speed(distanceToNextCar, currentLane, lastCar, road)
-        print lastCar, self.dist
+        newLane = self._should_merge(road, currentLane, leftLane, rightLane)
+
+        if newSpeed >= self.vmax:
+            newSpeed = self.vmax
+        #print lastCar, self.dist
+        self._set_lane(newLane)
         self._set_dist(self.dist + newSpeed)
         self._set_val(newSpeed)
 
         exit = road.update_cell(self.lane, self.dist, self.val)
 
         return exit
+
+    def _set_lane(self, lane):
+        self.lane = lane
 
     def _set_dist(self, dist):
         self.dist = dist
@@ -48,8 +56,19 @@ class Car(object):
                 lastCar = False
                 break
 
-
         return count, lastCar
+
+    def _previous_car_lane_over(self, adjacent):
+        count = 0
+        noPrevious = True
+        for i in range(self.dist, -1, -1):
+            count = count + 1
+            if adjacent[i] != -1:
+                noPrevious = False
+                break
+
+        return count - 1, noPrevious
+
 
     def _get_new_speed(self, distanceToNextCar, currentLane, lastCar, road):
 
@@ -77,8 +96,8 @@ class Car(object):
                 else:
                     newSpeed = currentLane[self.dist] + 1
 
-        if r.random() >= 1:
-            if newSpeed >= 1:
+        if r.random() >= 0.7:
+            if newSpeed >= 2:
                 newSpeed = newSpeed - 1
 
         return newSpeed
@@ -87,6 +106,74 @@ class Car(object):
         length = road.get_lane_size(lane)
         return [road.get_cell(lane, i) for i in range(0, length)]
 
+    def _get_side(self, road):
 
-    def _should_merge(self):
-        pass
+        if self.lane < min(road.target_lanes):
+            side = "left"
+        elif self.lane > max(road.target_lanes):
+            side = "right"
+        else:
+            side = "target"
+
+        return side
+
+
+    def _should_merge(self, road, currentLane, leftLane, rightLane):
+        if self._get_side(road) == "left":
+            return self._left_merge(road, currentLane, rightLane)
+        elif self._get_side(road) == "right":
+            return self._right_merge(road, currentLane, leftLane)
+        else:
+            return self._target_merge(road, currentLane, leftLane, rightLane)
+
+    def _left_merge(self, road, currentLane, rightLane):
+        distanceToPreviousCar, noPrevious = self._previous_car_lane_over(rightLane)
+        distanceToNextCarNextLane, lastCar = self._next_car(rightLane)
+
+        laneToMerge = self.lane
+        if noPrevious:
+            laneToMerge = self.lane + 1
+        else:
+            speed = max(self.val, rightLane[self.dist - distanceToPreviousCar])
+            if distanceToPreviousCar - 1 >= speed:
+                laneToMerge = self.lane + 1
+
+        return laneToMerge
+
+    def _right_merge(self, road, currentLane, leftLane):
+        distanceToPreviousCar, noPrevious = self._previous_car_lane_over(leftLane)
+        distanceToNextCarNextLane, lastCar = self._next_car(leftLane)
+
+        laneToMerge = self.lane
+        if noPrevious:
+            laneToMerge = self.lane - 1
+        else:
+            speed = max(self.val, leftLane[self.dist - distanceToPreviousCar])
+            if distanceToPreviousCar - 1 >= speed:
+                laneToMerge = self.lane - 1
+
+        return laneToMerge
+
+    def _target_merge(self, road, currentLane, leftLane, rightLane):
+        stay_in_lanes = road.target_lanes
+        laneToMerge = self.lane
+
+        if self.lane == min(stay_in_lanes):
+            distanceToNextCar, lastCar = self._next_car(currentLane)
+
+            if distanceToNextCar < self.val:
+                laneToMerge = self._left_merge(road, currentLane, rightLane)
+
+        elif self.lane == max(stay_in_lanes):
+            distanceToNextCar, lastCar = self._next_car(currentLane)
+
+            if distanceToNextCar < self.val:
+                laneToMerge = self._right_merge(road, currentLane, leftLane)
+
+        else:
+            distanceToNextCar, lastCar = self._next_car(currentLane)
+
+            if distanceToNextCar < self.val:
+                laneToMerge = self._left_merge(road, currentLane, rightLane)
+
+        return laneToMerge

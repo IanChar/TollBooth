@@ -1,4 +1,6 @@
 """ Class to manage all elements of the simulation. """
+import time
+import sys
 
 from Car import Car
 from Road import Road
@@ -35,6 +37,7 @@ class RoadManager(object):
 
         if print_progress:
             self.road.print_road()
-
+        sys.stdout.write("\033[F\n") # Cursor up one line
+        time.sleep(0.3)
         # Return how many cars left the scene during this tick.
         return throughput
