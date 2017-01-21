@@ -61,7 +61,8 @@ class Car(object):
     def _previous_car_lane_over(self, adjacent):
         count = 0
         noPrevious = True
-        for i in range(self.dist, -1, -1):
+        val = min(self.dist - 1, len(adjacent))
+        for i in range(val, -1, -1):
             count = count + 1
             if adjacent[i] != -1:
                 noPrevious = False
@@ -157,6 +158,9 @@ class Car(object):
     def _target_merge(self, road, currentLane, leftLane, rightLane):
         stay_in_lanes = road.target_lanes
         laneToMerge = self.lane
+
+        if self.dist > len(leftLane) or self.dist < len(rightLane):
+            return laneToMerge
 
         if self.lane == min(stay_in_lanes):
             distanceToNextCar, lastCar = self._next_car(currentLane)

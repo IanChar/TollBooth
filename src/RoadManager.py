@@ -11,9 +11,11 @@ class RoadManager(object):
         self.road = Road(lane_sizes, target_lanes)
         self.actors = [Car(0, self.road, 0)]
         self.road.commit_updates()
-        self.road.print_road()
+        #self.road.print_road()
         self.booths = [TollBooth(lane_num, rate_in, rate_out)
                        for lane_num in range(len(lane_sizes))]
+        self.total = 0
+        self.totalTime = []
 
     def tick(self, print_progress=False):
         # Make all the actors act.
@@ -35,9 +37,12 @@ class RoadManager(object):
             self.actors.append(Car(lane_num, self.road))
         throughput = self.road.commit_updates()
 
+        self.totalTime.append(self.total)
+        self.total = self.total + throughput
+
         if print_progress:
             self.road.print_road()
-        sys.stdout.write("\033[F\n") # Cursor up one line
-        time.sleep(0.3)
+        #sys.stdout.write("\033[F\n") # Cursor up one line
+        #time.sleep(0.3)
         # Return how many cars left the scene during this tick.
         return throughput
