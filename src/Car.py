@@ -14,6 +14,7 @@ class Car(object):
         """ calls update_cell """
 
         currentLane = self._get_lane(self.lane, road)
+        print currentLane
         leftLane = -1
         rightLane = -1
 
@@ -24,7 +25,7 @@ class Car(object):
 
         distanceToNextCar, lastCar = self._next_car(currentLane)
         newSpeed = self._get_new_speed(distanceToNextCar, currentLane, lastCar, road)
-
+        print lastCar, self.dist
         self._set_dist(self.dist + newSpeed)
         self._set_val(newSpeed)
 
@@ -40,19 +41,18 @@ class Car(object):
 
     def _next_car(self, currentLane):
         count = 0
-        lastCar = False
+        lastCar = True
         for i in range(self.dist + 1, len(currentLane)):
             count = count + 1
             if currentLane[i] != -1:
+                lastCar = False
                 break
 
-        #last car in the lane
-        if (count == (len(currentLane) - (self.dist + 1))):
-            lastCar = True
 
         return count, lastCar
 
     def _get_new_speed(self, distanceToNextCar, currentLane, lastCar, road):
+
         if not lastCar:
             if distanceToNextCar > currentLane[self.dist] + 1:
                 if currentLane[self.dist] == self.vmax:
@@ -88,5 +88,5 @@ class Car(object):
         return [road.get_cell(lane, i) for i in range(0, length)]
 
 
-    def _merge(self):
+    def _should_merge(self):
         pass
