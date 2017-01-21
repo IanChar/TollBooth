@@ -15,7 +15,8 @@ class RoadManager(object):
         self.booths = [TollBooth(lane_num, rate_in, rate_out)
                        for lane_num in range(len(lane_sizes))]
 
-        self.collisions = 0
+        self.collision = 0
+        self.speed_collision = 0
 
         self.total = 0
         self.totalTime = []
@@ -24,14 +25,15 @@ class RoadManager(object):
         # Make all the actors act.
         to_remove = []
         for actor_id, actor in enumerate(self.actors):
-            print actor_id
-            act, collision = actor.tick(self.road)
+            act, collision, speed_collision = actor.tick(self.road)
             if not act:
                 to_remove.append(actor_id)
             if collision:
-                self.collisions = self.collisions + 1
+                self.collision = self.collision + 1
+            if speed_collision:
+                self.speed_collision = self.speed_collision + 1
 
-        print self.collisions
+        print self.collision, self.speed_collision
         # Remove all actors that have left the scene.
         to_remove = to_remove[::-1]
         for actor_id in to_remove:
@@ -51,7 +53,7 @@ class RoadManager(object):
 
         if print_progress:
             self.road.print_road()
-        #sys.stdout.write("\033[F\n") # Cursor up one line
-        #time.sleep(0.3)
+        sys.stdout.write("\033[F\n") # Cursor up one line
+        time.sleep(0.3)
         # Return how many cars left the scene during this tick.
         return throughput
