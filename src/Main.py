@@ -7,6 +7,6 @@ if __name__ == '__main__':
     RS = RoadSimulator2018()
 
     throughput, mergeCollision, speedCollision = \
-        RS.runSim([6,10,17,22,22,22,10,6], [3, 4, 5], 0.5, 0.5, 1, SIMS)
+        RS.runSim([6,10,17,22,22,22,10,9], [3, 4, 5], 0.5, 0.5, 1, True, SIMS)
 
     RS.linearTrend(throughput, mergeCollision, speedCollision, SIMS)

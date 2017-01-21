@@ -22,7 +22,7 @@ class RoadSimulator2018(object):
         self.rd.speedCollisionTime = []
         self.rd.totalTime = []
 
-    def runSim(self, lanes, target_lanes, rate_in, rate_out, smart_car_prob, sims):
+    def runSim(self, lanes, target_lanes, rate_in, rate_out, smart_car_prob, output, sims):
 
         self.rd = RoadManager(lanes, target_lanes, rate_in, rate_out, smart_car_prob) #BEST ONE SO FAR
         #rd = RoadManager([26,26,26,16,14,12,10,6], [0, 1, 2], 0.5, 0.5)
@@ -31,7 +31,7 @@ class RoadSimulator2018(object):
         self.reachSteadyState()
 
         for _ in range(sims):
-            self.rd.tick()
+            self.rd.tick(output)
 
         return self.rd.totalTime, self.rd.collisionTime, self.rd.speedCollisionTime
 
