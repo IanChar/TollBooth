@@ -11,9 +11,12 @@ class RoadManager(object):
         self.road = Road(lane_sizes, target_lanes)
         self.actors = [Car(0, self.road, 0)]
         self.road.commit_updates()
-        #self.road.print_road()
+        self.road.print_road()
         self.booths = [TollBooth(lane_num, rate_in, rate_out)
                        for lane_num in range(len(lane_sizes))]
+
+        self.collisions = 0
+
         self.total = 0
         self.totalTime = []
 
@@ -21,8 +24,14 @@ class RoadManager(object):
         # Make all the actors act.
         to_remove = []
         for actor_id, actor in enumerate(self.actors):
-            if not actor.tick(self.road):
+            print actor_id
+            act, collision = actor.tick(self.road)
+            if not act:
                 to_remove.append(actor_id)
+            if collision:
+                self.collisions = self.collisions + 1
+
+        print self.collisions
         # Remove all actors that have left the scene.
         to_remove = to_remove[::-1]
         for actor_id in to_remove:

@@ -1,14 +1,20 @@
 """ Main file to run the simulation. """
 import matplotlib.pyplot as plt
-import plotly.plotly as py
+import numpy as np
+from sklearn import linear_model
 
 from RoadManager import RoadManager
 
 if __name__ == '__main__':
-    rd = RoadManager([25,27,27,25,24], [1, 2], 0.5, 0.5)
+    #rd = RoadManager([26,26,26,16,14,12,10,6], [0, 1, 2], 0.5, 0.5)
+    rd = RoadManager([26,26,26,16,14,12,10,6], [0, 1, 2], 0.5, 0.5)
     for _ in range(100):
         rd.tick(True)
 
+    #reg = linear_model.LinearRegression()
+    #reg.fit(zip(range(0,100), rd.totalTime), range(0,100))
+
+    #print reg.coef
 
     print rd.total
     plt.plot(range(0, 100), rd.totalTime, "o")
