@@ -3,5 +3,6 @@
 from RoadManager import RoadManager
 
 if __name__ == '__main__':
-    rd = RoadManager([3, 4, 3], [1], 1, 1)
-    rd.tick(True)
+    rd = RoadManager([6, 7, 6], [1], 0.5, 0.5)
+    for _ in range(10):
+        rd.tick(True)

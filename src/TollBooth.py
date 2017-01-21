@@ -13,7 +13,7 @@ class TollBooth(object):
         rand_num = random()
         if rand_num <= self.rate_in:
             self.processing += 1
-        elif self.processing > 0 and road.get_cell(self.lane_num, 0) >= 0:
+        elif self.processing > 0 and road.get_cell(self.lane_num, 0) < 0:
             if rand_num <= (self.rate_in + self.rate_out):
                 self.processing -= 1
                 return True
