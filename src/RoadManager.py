@@ -8,14 +8,12 @@ from Road import Road
 from SmartCar import SmartCar
 from TollBooth import TollBooth
 
-SMART_CAR_PROB = 0.25
-
 class RoadManager(object):
-    def __init__(self, lane_sizes, target_lanes, rate_in, rate_out):
+    def __init__(self, lane_sizes, target_lanes, rate_in, rate_out,
+                 smart_car_prob):
+        self.smart_car_prob = smart_car_prob
         self.road = Road(lane_sizes, target_lanes)
-        self.actors = [Car(0, self.road, 0)]
-        self.road.commit_updates()
-        self.road.print_road()
+        self.actors = []
         self.booths = [TollBooth(lane_num, rate_in, rate_out)
                        for lane_num in range(len(lane_sizes))]
 
@@ -53,7 +51,7 @@ class RoadManager(object):
                 to_add.append(lane_num)
         for lane_num in to_add:
             prob = random()
-            if prob < SMART_CAR_PROB:
+            if prob < self.smart_car_prob:
                 self.actors.append(SmartCar(lane_num, self.road))
             else:
                 self.actors.append(Car(lane_num, self.road))

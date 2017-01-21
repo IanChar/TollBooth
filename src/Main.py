@@ -11,12 +11,14 @@ def f(t, coeff):
 if __name__ == '__main__':
     start_time = time.time()
     #rd = RoadManager([26,26,26,16,14,12,10,6], [0, 1, 2], 0.5, 0.5)
-    rd = RoadManager([6,10,17,22,22,22,10,6], [3, 4, 5], 0.5, 0.5) #BEST ONE SO FAR
+    rd = RoadManager([6,10,17,22,22,22,10,6], [3, 4, 5], 0.5, 0.5, 1) #BEST ONE SO FAR
     #rd = RoadManager([63, 63, 63, 63, 63, 63, 63, 63], [0, 1, 2, 3, 4, 5, 6, 7], 0.5, 0.5)
     sims = 100
     for _ in range(sims):
         #rd.tick()
         rd.tick(True)
+
+    
 
     z = np.polyfit(range(0, sims), rd.totalTime, 1)
     print "\n\n\nSlope of Trend: " + str(z[0])

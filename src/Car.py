@@ -24,6 +24,7 @@ class Car(object):
             rightLane = self._get_lane(self.lane + 1, road)
 
         distanceToNextCar, lastCar = self._next_car(currentLane)
+        #print self.lane, self.dist, distanceToNextCar
         newSpeed, speedCollision = self._get_new_speed(distanceToNextCar, currentLane, lastCar, road)
         newLane = self._should_merge(road, currentLane, leftLane, rightLane)
 

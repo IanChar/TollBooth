@@ -82,24 +82,37 @@ class SmartCar(object):
     def _get_new_speed(self, distanceToNextSmartCar, currentLane, lastSmartCar, road):
 
         currentSpeed = self.val
-
         if not lastSmartCar:
-            if distanceToNextSmartCar > currentLane[self.dist] + 1:
-                if currentLane[self.dist] == self.vmax:
-                    newSpeed = self.vmax
-                else:
-                    newSpeed = currentLane[self.dist] + 1
+            nextCarSpeed = currentLane[self.dist + distanceToNextSmartCar]
+
+            if currentSpeed == 0 and distanceToNextSmartCar > 1:
+                newSpeed = currentSpeed + 1
+            elif currentSpeed == 1 and distanceToNextSmartCar > 2:
+                newSpeed = currentSpeed + 1
+            elif currentSpeed >= 2 and distanceToNextSmartCar > 3:
+                newSpeed = currentSpeed + 1
             else:
-                newSpeed = distanceToNextSmartCar - 1
+                newSpeed = currentSpeed
+
+            if distanceToNextSmartCar >= 2:
+                newSpeed = min(nextCarSpeed, currentSpeed + distanceToNextSmartCar)
+            elif distanceToNextSmartCar == 1:
+                newSpeed = min(2, nextCarSpeed, currentSpeed + distanceToNextSmartCar)
+            else:
+                newSpeed = min(1, nextCarSpeed, currentSpeed + distanceToNextSmartCar)
+
         else:
+            #Otherwise, just accelerate since you're the last car
             if self.lane in road.target_lanes:
                 if currentLane[self.dist] == self.vmax:
                     newSpeed = self.vmax
                 else:
                     newSpeed = currentLane[self.dist] + 1
+            #need to break since the lane is ending
             else:
                 if currentLane[self.dist] == self.vmax:
                     newSpeed = self.vmax
+                #distance here is the distance until the end of the lane
                 if distanceToNextSmartCar <= self.val and distanceToNextSmartCar > 0:
                     newSpeed = distanceToNextSmartCar - 1
                 elif distanceToNextSmartCar == 0:
