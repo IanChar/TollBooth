@@ -3,10 +3,10 @@ import random as r
 
 class Car(object):
 
-    def __init__(self, lane, road, val = 0):
+    def __init__(self, lane, road, val = 0,  dist = 0):
         self.vmax = 4
         self.lane = lane
-        self.dist = 0
+        self.dist = dist
         self.val = val
         road.update_cell(lane, 0, val)
 
@@ -23,8 +23,8 @@ class Car(object):
             rightLane = self._get_lane(self.lane + 1, road)
 
         distanceToNextCar, lastCar = self._next_car(currentLane)
+        newSpeed = self._get_new_speed(distanceToNextCar, currentLane, lastCar, road)
 
-        newSpeed = self._get_new_speed(distanceToNextCar, currentLane, lastCar)
         self._set_dist(self.dist + newSpeed)
         self._set_val(newSpeed)
 
@@ -47,12 +47,12 @@ class Car(object):
                 break
 
         #last car in the lane
-        if count == (len(currentLane) - (self.dist + 1)):
+        if (count == (len(currentLane) - (self.dist + 1))):
             lastCar = True
 
         return count, lastCar
 
-    def _get_new_speed(self, distanceToNextCar, currentLane, lastCar):
+    def _get_new_speed(self, distanceToNextCar, currentLane, lastCar, road):
         if not lastCar:
             if distanceToNextCar > currentLane[self.dist] + 1:
                 if currentLane[self.dist] == self.vmax:
@@ -62,10 +62,20 @@ class Car(object):
             else:
                 newSpeed = distanceToNextCar - 1
         else:
-            if currentLane[self.dist] == self.vmax:
-                newSpeed = self.vmax
+            if self.lane in road.target_lanes:
+                if currentLane[self.dist] == self.vmax:
+                    newSpeed = self.vmax
+                else:
+                    newSpeed = currentLane[self.dist] + 1
             else:
-                newSpeed = currentLane[self.dist] + 1
+                if currentLane[self.dist] == self.vmax:
+                    newSpeed = self.vmax
+                if distanceToNextCar <= self.val and distanceToNextCar > 0:
+                    newSpeed = distanceToNextCar - 1
+                elif distanceToNextCar == 0:
+                    newSpeed = 0
+                else:
+                    newSpeed = currentLane[self.dist] + 1
 
         if r.random() >= 1:
             if newSpeed >= 1:
