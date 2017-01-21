@@ -17,8 +17,10 @@ class RoadManager(object):
 
         self.collision = 0
         self.speed_collision = 0
-
         self.total = 0
+
+        self.collisionTime = []
+        self.speedCollisionTime = []
         self.totalTime = []
 
     def tick(self, print_progress=False):
@@ -33,7 +35,9 @@ class RoadManager(object):
             if speed_collision:
                 self.speed_collision = self.speed_collision + 1
 
-        print self.collision, self.speed_collision
+        self.collisionTime.append(self.collision)
+        self.speedCollisionTime.append(self.speed_collision)
+
         # Remove all actors that have left the scene.
         to_remove = to_remove[::-1]
         for actor_id in to_remove:
@@ -53,7 +57,7 @@ class RoadManager(object):
 
         if print_progress:
             self.road.print_road()
-        sys.stdout.write("\033[F\n") # Cursor up one line
-        time.sleep(0.3)
+        #sys.stdout.write("\033[F\n") # Cursor up one line
+        #time.sleep(0.3)
         # Return how many cars left the scene during this tick.
         return throughput

@@ -4,7 +4,7 @@ import random as r
 class Car(object):
 
     def __init__(self, lane, road, val = 0,  dist = 0):
-        self.vmax = 4
+        self.vmax = 3
         self.lane = lane
         self.dist = dist
         self.val = val
@@ -107,7 +107,7 @@ class Car(object):
                 else:
                     newSpeed = currentLane[self.dist] + 1
 
-        if r.random() >= 0.7:
+        if r.random() >= 0.5:
             if newSpeed >= 2:
                 newSpeed = newSpeed - 1
 
@@ -142,10 +142,10 @@ class Car(object):
             return self._target_merge(road, currentLane, leftLane, rightLane)
 
     def _left_merge(self, road, currentLane, rightLane):
+        laneToMerge = self.lane
         distanceToPreviousCar, noPrevious = self._previous_car_lane_over(rightLane)
         distanceToNextCarNextLane, lastCar = self._next_car(rightLane)
 
-        laneToMerge = self.lane
         if noPrevious:
             laneToMerge = self.lane + 1
         else:
@@ -156,10 +156,10 @@ class Car(object):
         return laneToMerge
 
     def _right_merge(self, road, currentLane, leftLane):
+        laneToMerge = self.lane
         distanceToPreviousCar, noPrevious = self._previous_car_lane_over(leftLane)
         distanceToNextCarNextLane, lastCar = self._next_car(leftLane)
 
-        laneToMerge = self.lane
         if noPrevious:
             laneToMerge = self.lane - 1
         else:
