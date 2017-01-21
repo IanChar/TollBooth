@@ -37,7 +37,7 @@ class Road(object):
         Returns: True if we are still on the road, False if not.
     """
     def update_cell(self, lane, dist, val):
-        if dist >= len(self.future_lanes[lane]):
+        if dist >= self.lane_sizes[lane]:
             self.exiting += 1
             return False
         else:
@@ -52,6 +52,7 @@ class Road(object):
         del self.lanes
         gc.collect()
         self.lanes = self.future_lanes
+        self.future_lanes = self._create_blank_lanes()
 
         exited = self.exiting
         self.exiting = 0

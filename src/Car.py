@@ -25,23 +25,31 @@ class Car(object):
         distanceToNextCar, lastCar = self._next_car(currentLane)
 
         newSpeed = self._get_new_speed(distanceToNextCar, currentLane, lastCar)
+        self._set_dist(self.dist + newSpeed)
+        self._set_val(newSpeed)
 
-
-        exit = road.update_cell(self.lane, self.dist + newSpeed, newSpeed)
+        exit = road.update_cell(self.lane, self.dist, self.val)
 
         return exit
+
+    def _set_dist(self, dist):
+        self.dist = dist
+
+    def _set_val(self, val):
+        self.val = val
 
     def _next_car(self, currentLane):
         count = 0
         lastCar = False
         for i in range(self.dist + 1, len(currentLane)):
+            count = count + 1
             if currentLane[i] != -1:
                 break
-            count = count + 1
 
         #last car in the lane
         if count == (len(currentLane) - (self.dist + 1)):
             lastCar = True
+
         return count, lastCar
 
     def _get_new_speed(self, distanceToNextCar, currentLane, lastCar):
@@ -58,7 +66,6 @@ class Car(object):
                 newSpeed = self.vmax
             else:
                 newSpeed = currentLane[self.dist] + 1
-            print newSpeed
 
         if r.random() >= 1:
             if newSpeed >= 1:

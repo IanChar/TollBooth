@@ -25,14 +25,14 @@ class RoadManager(object):
         for actor_id in to_remove:
             del self.actors[actor_id]
         # Check if any actors have entered the scene.
-        to_add = []
-        for lane_num, booth in enumerate(self.booths):
-            if booth.tick():
-                to_add.append(lane_num)
-        for lane_num in to_add:
-            # TODO: Alter this if we want different cars.
-            self.actors.append(Car(lane_num, self.road))
-        self.road.commit_updates()
+        # to_add = []
+        # for lane_num, booth in enumerate(self.booths):
+        #     if booth.tick():
+        #         to_add.append(lane_num)
+        # for lane_num in to_add:
+        #     # TODO: Alter this if we want different cars.
+        #     self.actors.append(Car(lane_num, self.road))
+        # self.road.commit_updates()
 
         if print_progress:
             self.road.print_road()
