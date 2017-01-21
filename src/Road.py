@@ -62,6 +62,8 @@ class Road(object):
             print '\t'.join([str(speed) if speed >= 0 else '-'
                              for speed in lane])
 
+        print "***********"
+
     def _create_blank_lanes(self):
         return [[-1 for _ in range(size)] for size in self.lane_sizes]
 

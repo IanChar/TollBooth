@@ -7,7 +7,9 @@ from TollBooth import TollBooth
 class RoadManager(object):
     def __init__(self, lane_sizes, target_lanes, rate_in, rate_out):
         self.road = Road(lane_sizes, target_lanes)
-        self.actors = []
+        self.actors = [Car(0, self.road, 0), Car(1, self.road, 1), Car(2, self.road, 1)]
+        self.road.commit_updates()
+        self.road.print_road()
         self.booths = [TollBooth(rate_in, rate_out)
                        for _ in range(len(lane_sizes))]
 
@@ -19,6 +21,7 @@ class RoadManager(object):
                 to_remove.append(actor_id)
         throughput = self.road.commit_updates()
         # Remove all actors that have left the scene.
+        to_remove = to_remove[::-1]
         for actor_id in to_remove:
             del self.actors[actor_id]
         # Check if any actors have entered the scene.
