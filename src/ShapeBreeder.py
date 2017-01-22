@@ -1,17 +1,95 @@
 """ Forms lane shapes and determines the best shape. """
 
-from random import random
+from collections import deque
+from random import random, shuffle
+
+from RoadSimulator2018 import RoadSimulator2018 as RoadSimulator
 
 SELECT_SIZE_PROB = 0.34
 SIDE_ADD_PROB = 0.25
 MID_PROB = 0.25
 
-def evolve(population, minimal_shape, mating_pool_size, offspring_number):
+RD = RoadSimulator()
+
+def form_one_step_shape(num_lanes, targets):
+    shape = [1 for _ in range(num_lanes)]
+    low, high = min(targets), max(targets)
+
+    # Iterate through until we have a correct solution
+    left_point, right_point = low, high + 1
+    running = True
+    while running:
+        for index in range(left_point, right_point):
+            shape[index] += 1
+        if left_point > 0:
+            left_point -= 1
+        if right_point < num_lanes:
+            right_point += 1
+        running = left_point > 0 or right_point < num_lanes
+
+    return shape
+
+def breed_best_shape(num_lanes, targets, cost, iterations, population_size,
+                     mating_pool_size, offspring_number):
+    minimal_shape = form_minimal_shape(num_lanes, targets)
+    cost -= sum(minimal_shape)
+    population = gen_n_rand_extra(population_size, num_lanes, targets, cost)
+
+    for _ in range(iterations):
+        shuffle(population)
+        population = evolve(population, targets, cost, minimal_shape,
+                            mating_pool_size, offspring_number)
+
+""" --------------------------HELPER FUNCTIONS--------------------"""
+
+def evolve(population, targets, cost, minimal_shape, mating_pool_size,
+           offspring_number):
     # Rank the population according to some metric
+    scores = []
+    for shape in population:
+        scores.append(get_score(shape, targets, minimal_shape))
+    # Print information about this iteration.
+    print 'Average Score:', str(sum(scores) / float(len(scores))),
+    print 'Max Score:', max(scores),
+    print 'Best Score:', population[scores.index(max(scores))]
     # Select what the mating pool will be.
+    mating_pool = make_mating_pool(population, scores, mating_pool_size)
     # Force the mating pool to mate.
-    # Return the new population.
-    pass
+    return make_offspring(mating_pool, offspring_number, targets, cost)
+
+def get_score(shape, targets, minimal_shape):
+    true_shape = list(minimal_shape)
+    for lane_index in range(len(shape)):
+        true_shape[lane_index] += shape[lane_index]
+    throughputs, _, _ = RD.runSim(true_shape, targets, 0.25, 0.25, 0.4, False,
+                                 60)
+    return throughputs[-1]
+
+def make_mating_pool(population, scores, mating_pool_size):
+    mating_pool = deque()
+    section_boundaries = range(0, len(population), mating_pool_size)
+    for index in range(len(section_boundaries) - 1):
+        max_score = 0
+        max_id = 0
+        for score_id in range(section_boundaries[index],
+                            section_boundaries[index + 1]):
+            if max_score < scores[score_id]:
+                max_score = scores[score_id]
+                max_id = score_id
+            mating_pool.append(population[max_id])
+    return mating_pool
+
+def make_offspring(mating_pool, offspring_number, targets, cost):
+    new_population = []
+    while len(mating_pool) > 1:
+        mom, dad = mating_pool.pop(), mating_pool.pop()
+        new_population.append(mom)
+        new_population.append(dad)
+        for _ in range(offspring_number):
+            new_population.append(shape_reproduction([mom, dad], targets, cost))
+    if len(mating_pool) == 1:
+        new_population.append(mating_pool[0])
+    return new_population
 
 def shape_reproduction(parents, targets, cost):
     child = []
@@ -23,7 +101,6 @@ def shape_reproduction(parents, targets, cost):
             child.append(mom[lane_num])
         else:
             child.append(0)
-    print child
     return form_extra_shape(child, targets, cost)
 
 def gen_n_rand_extra(n, size, targets, cost):
@@ -63,7 +140,6 @@ def form_extra_shape(shape, targets, cost):
                 cost -= 1
 
     return shape
-
 
 
 """ Forms the minimal shape possible given the specifications. """
@@ -148,5 +224,4 @@ def _maybe_add_to_mid(shape, low, high):
     return False
 
 if __name__ == '__main__':
-    parents = gen_n_rand_extra(2, 5, [1, 2], 30)
-    print parents, shape_reproduction(parents, [1, 2], 30)
+    breed_best_shape(6, [1, 2], 30, 3, 10, 5, 1)
