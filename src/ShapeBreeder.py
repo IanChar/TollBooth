@@ -6,15 +6,31 @@ SELECT_SIZE_PROB = 0.34
 SIDE_ADD_PROB = 0.25
 MID_PROB = 0.25
 
-def gen_n_rand(n, size, targets, cost):
+def evolve(population, minimal_shape, mating_pool_size, offspring_number):
+    # Rank the population according to some metric
+    # Select what the mating pool will be.
+    # Force the mating pool to mate.
+    # Return the new population.
+    pass
+
+def shape_reproduction(parents, targets, cost):
+    child = []
+
+    # Find common genes in the parents.
+    mom, dad = parents[0], parents[1]
+    for lane_num in range(len(mom)):
+        if mom[lane_num] == dad[lane_num]:
+            child.append(mom[lane_num])
+        else:
+            child.append(0)
+    print child
+    return form_extra_shape(child, targets, cost)
+
+def gen_n_rand_extra(n, size, targets, cost):
     shapes = []
-    min_shape = form_minimal_shape(size, targets)
-    cost -= sum(min_shape)
 
     for _ in range(n):
         extra = form_extra_shape([0 for _ in range(size)], targets, cost)
-        for lane_num in range(size):
-            extra[lane_num] += min_shape[lane_num]
         shapes.append(extra)
     return shapes
 
@@ -132,4 +148,5 @@ def _maybe_add_to_mid(shape, low, high):
     return False
 
 if __name__ == '__main__':
-    print gen_n_rand(5, 5, [1, 2], 30)
+    parents = gen_n_rand_extra(2, 5, [1, 2], 30)
+    print parents, shape_reproduction(parents, [1, 2], 30)
