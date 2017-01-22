@@ -7,14 +7,20 @@ class TollBooth(object):
         self.lane_num = lane_num
         self.rate_in = rate_in
         self.rate_out = rate_out
-        self.processing = 0
+        self.queue_size = 0
 
     def tick(self, road):
-        rand_num = random()
-        if rand_num <= self.rate_in:
-            self.processing += 1
-        elif self.processing > 0 and road.get_cell(self.lane_num, 0) < 0:
-            if rand_num <= (self.rate_in + self.rate_out):
-                self.processing -= 1
-                return True
-        return False
+        emission = False
+        queue_change = 0
+
+        rand = random()
+        if rand < self.rate_in:
+            queue_change += 1
+
+        if road.get_cell(self.lane_num, 0) < 0:
+            rand = random()
+            if rand < self.rate_out:
+                queue_change -= 1
+                emission = True
+        self.queue_size += queue_change
+        return emission
