@@ -49,9 +49,13 @@ def evolve(population, targets, cost, minimal_shape, mating_pool_size,
     for shape in population:
         scores.append(get_score(shape, targets, minimal_shape))
     # Print information about this iteration.
+    max_score = max(scores)
+    best_shape = list(population[scores.index(max_score)])
+    for index in range(len(best_shape)):
+        best_shape[index] += minimal_shape[index]
     print 'Average Score:', str(sum(scores) / float(len(scores))),
-    print 'Max Score:', max(scores),
-    print 'Best Score:', population[scores.index(max(scores))]
+    print 'Max Score:', max_score,
+    print 'Best Score:', best_shape
     # Select what the mating pool will be.
     mating_pool = make_mating_pool(population, scores, mating_pool_size)
     # Force the mating pool to mate.
