@@ -4,6 +4,10 @@ import time
 
 from RoadManager import RoadManager
 
+SLOW_BOOTH = 0.098774
+MED_BOOTH = 0.130398
+FAST_BOOTH = 0.377742
+
 class RoadSimulator2018(object):
 
     def __init__(self):
