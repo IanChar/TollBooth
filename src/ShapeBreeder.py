@@ -8,6 +8,8 @@ from RoadSimulator2018 import RoadSimulator2018 as RoadSimulator
 SELECT_SIZE_PROB = 0.34
 SIDE_ADD_PROB = 0.25
 MID_PROB = 0.25
+SIMULATIONS = 60
+PERCENT_AUTOMATED = 0
 
 RD = RoadSimulator()
 
@@ -42,6 +44,9 @@ def breed_best_shape(num_lanes, targets, cost, iterations, population_size,
 
 """ --------------------------HELPER FUNCTIONS--------------------"""
 
+def objective_function(throughput, accident_merge, accident_speed):
+    return 100 - (accident_merge + accident_speed) / float(throughput)
+
 def evolve(population, targets, cost, minimal_shape, mating_pool_size,
            offspring_number):
     # Rank the population according to some metric
@@ -65,9 +70,10 @@ def get_score(shape, targets, minimal_shape):
     true_shape = list(minimal_shape)
     for lane_index in range(len(shape)):
         true_shape[lane_index] += shape[lane_index]
-    throughputs, _, _ = RD.runSim(true_shape, targets, 0.25, 0.25, 0.4, False,
-                                 60)
-    return throughputs[-1]
+    throughputs, accidents_merge, accidents_speed = \
+        RD.runSim(true_shape, targets, PERCENT_AUTOMATED, False, SIMULATIONS)
+    return objective_function(throughputs[-1], accidents_merge[-1],
+            accidents_speed[-1])
 
 def make_mating_pool(population, scores, mating_pool_size):
     mating_pool = deque()
