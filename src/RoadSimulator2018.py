@@ -2,11 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 
+import Constants as C
 from RoadManager import RoadManager
-
-SLOW_BOOTH = 0.098774
-MED_BOOTH = 0.130398
-FAST_BOOTH = 0.377742
 
 class RoadSimulator2018(object):
 
@@ -26,9 +23,11 @@ class RoadSimulator2018(object):
         self.rd.speedCollisionTime = []
         self.rd.totalTime = []
 
-    def runSim(self, lanes, target_lanes, rate_in, rate_out, smart_car_prob, output, sims):
+    def runSim(self, lanes, target_lanes, smart_car_prob, output, sims,
+               booth_config=None, traffic_speed=C.MED):
 
-        self.rd = RoadManager(lanes, target_lanes, rate_in, rate_out, smart_car_prob) #BEST ONE SO FAR
+        self.rd = RoadManager(lanes, target_lanes, smart_car_prob,
+                              booth_config, traffic_speed) #BEST ONE SO FAR
         #rd = RoadManager([26,26,26,16,14,12,10,6], [0, 1, 2], 0.5, 0.5)
         #rd = RoadManager([63, 63, 63, 63, 63, 63, 63, 63], [0, 1, 2, 3, 4, 5, 6, 7], 0.5, 0.5)
 

@@ -1,21 +1,31 @@
 """ Class to manage all elements of the simulation. """
-import time
-import sys
 from random import random
+from math import exp
 
+import Constants as C
 from Car import Car
 from Road import Road
 from SmartCar import SmartCar
 from TollBooth import TollBooth
 
 class RoadManager(object):
-    def __init__(self, lane_sizes, target_lanes, rate_in, rate_out,
-                 smart_car_prob):
+    def __init__(self, lane_sizes, target_lanes, smart_car_prob,
+                 booth_config=None, traffic_speed=C.MED):
         self.smart_car_prob = smart_car_prob
         self.road = Road(lane_sizes, target_lanes)
         self.actors = []
-        self.booths = [TollBooth(lane_num, rate_in, rate_out)
-                       for lane_num in range(len(lane_sizes))]
+        # Form the booth config if none was given.
+        num_lanes = len(lane_sizes)
+        if booth_config is None:
+            booth_config = [C.FAST] * (num_lanes - 2) + [C.SLOW] * 2
+        if num_lanes != len(booth_config):
+            raise ValueError('Invalid booth configuration.')
+        # Create the different booths.
+        self.booths = []
+        rate_in = traffic_speed / float(len(booth_config))
+        rate_in = 1 - exp(-1* rate_in)
+        for booth_id, booth in enumerate(booth_config):
+            self.booths.append(TollBooth(booth_id, rate_in, C.BOOTHS[booth]))
 
         self.collision = 0
         self.speed_collision = 0
