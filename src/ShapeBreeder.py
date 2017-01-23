@@ -13,6 +13,35 @@ PERCENT_AUTOMATED = 0
 
 RD = RoadSimulator()
 
+def breed_best_loc(trials, objective_function, num_lanes=9, num_targets=4):
+    scores = []
+    for start_index in range(num_lanes + 1 - num_targets):
+        targets = range(start_index, start_index + num_targets)
+        curr_shape = form_one_step_shape(num_lanes, targets)
+        curr_score = []
+        for _ in xrange(trials):
+            throughputs, accidents_merge, accidents_speed = \
+                RD.runSim(curr_shape, targets, PERCENT_AUTOMATED, False,
+                          SIMULATIONS)
+            curr_score.append(objective_function(throughputs[-1],
+                                                 accidents_merge[-1],
+                                                 accidents_speed[-1]))
+        scores.append(curr_score)
+    return scores
+
+def breed_best_shape(num_lanes, targets, cost, iterations, population_size,
+                     mating_pool_size, offspring_number, objective=None):
+    minimal_shape = form_minimal_shape(num_lanes, targets)
+    cost -= sum(minimal_shape)
+    population = gen_n_rand_extra(population_size, num_lanes, targets, cost)
+
+    for _ in range(iterations):
+        shuffle(population)
+        population = evolve(population, targets, cost, minimal_shape,
+                            mating_pool_size, offspring_number, objective)
+
+""" --------------------------HELPER FUNCTIONS--------------------"""
+
 def form_one_step_shape(num_lanes, targets):
     shape = [1 for _ in range(num_lanes)]
     low, high = min(targets), max(targets)
@@ -31,28 +60,18 @@ def form_one_step_shape(num_lanes, targets):
 
     return shape
 
-def breed_best_shape(num_lanes, targets, cost, iterations, population_size,
-                     mating_pool_size, offspring_number):
-    minimal_shape = form_minimal_shape(num_lanes, targets)
-    cost -= sum(minimal_shape)
-    population = gen_n_rand_extra(population_size, num_lanes, targets, cost)
-
-    for _ in range(iterations):
-        shuffle(population)
-        population = evolve(population, targets, cost, minimal_shape,
-                            mating_pool_size, offspring_number)
-
-""" --------------------------HELPER FUNCTIONS--------------------"""
-
-def objective_function(throughput, accident_merge, accident_speed):
+def objective1(throughput, accident_merge, accident_speed):
     return 100 - (accident_merge + accident_speed) / float(throughput)
 
+def objective2(throughput, accident_merge, accident_speed):
+    return throughput
+
 def evolve(population, targets, cost, minimal_shape, mating_pool_size,
-           offspring_number):
+           offspring_number, objective):
     # Rank the population according to some metric
     scores = []
     for shape in population:
-        scores.append(get_score(shape, targets, minimal_shape))
+        scores.append(get_score(shape, targets, minimal_shape, objective))
     # Print information about this iteration.
     max_score = max(scores)
     best_shape = list(population[scores.index(max_score)])
@@ -66,12 +85,15 @@ def evolve(population, targets, cost, minimal_shape, mating_pool_size,
     # Force the mating pool to mate.
     return make_offspring(mating_pool, offspring_number, targets, cost)
 
-def get_score(shape, targets, minimal_shape):
+def get_score(shape, targets, minimal_shape, objective_function):
     true_shape = list(minimal_shape)
     for lane_index in range(len(shape)):
         true_shape[lane_index] += shape[lane_index]
     throughputs, accidents_merge, accidents_speed = \
         RD.runSim(true_shape, targets, PERCENT_AUTOMATED, False, SIMULATIONS)
+    if objective_function is None:
+        return objective1(throughputs[-1], accidents_merge[-1],
+                          accidents_speed[-1])
     return objective_function(throughputs[-1], accidents_merge[-1],
             accidents_speed[-1])
 
